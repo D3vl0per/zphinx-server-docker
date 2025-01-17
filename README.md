@@ -1,33 +1,23 @@
 # Dockerized alpine based zphinx-zerver 
 https://github.com/stef/zphinx-zerver
 
-## Quick Start (not production ready)
-1. Generate own private key: `openssl ecparam -genkey -out ssl_key.pem -name secp384r1`
-2. Generate cert: `openssl req -new -nodes -x509 -sha256 -key ssl_key.pem -out ssl_cert.pem -days 365 -subj '/CN=localhost'`
-3. docker-compose up -d
+
+## Setup
+1. Download the docker-compose.yml
+2. Generate long-term keys with `docker-compose up`
+3. Stop the stack with `docker-compose down`
+4. Add your SSL key inside the keys folder and adjust the sphinx.cfg accordingly
+5. Remove the command line and the first volume definition (./keys/:/tmp/keys/:rw) from the docker-compose.yml 
+6. Remove the comment of the second volume definition (./keys/:/etc/ssl/sphinx/:ro)
+7. Start the container with `docker-compose up -d`
+
+
+## Local Development
+1. Generate own private key: `openssl ecparam -genkey -out server.pem -name secp384r1`
+2. Generate cert: `openssl req -new -nodes -x509 -sha256 -key server.pem -out certs.pem -days 365 -subj '/CN=localhost'`
+3. docker-compose -f build-docker-compose.yml build
 
 ## Images
 Docker registry: `d3vm/zphinx-zerver-docker:zphinx-<upstream-repo-git-commit>`   
 GitHub registry: `ghcr.io/d3vl0per/zphinx-zerver-docker/zphinx:<upstream-repo-git-commit>`
-Own registry: `r.zsibok.hu/zphinx-zerver-docker/zphinx:<upstream-repo-git-commit>`
-
-## Builder images
-  - Essetials-builder:
-    - Docker registry: `d3vm/zphinx-zerver-docker:essetials-builder-<llvm-version>`
-    - Github registry: `ghcr.io/d3vl0per/zphinx-zerver-docker/essetials-builder:<llvm-version>`
-    - Own registry:    `r.zsibok.hu/zphinx-zerver-docker/essetials-builder:<llvm-version>`
-  - Zig-builder:
-    - Docker registry: `d3vm/zphinx-zerver-docker:zib-builder-<zig-version>`
-    - Github registry: `ghcr.io/d3vl0per/zphinx-zerver-docker/zib-builder:<zig-version>`
-    - Own registry:    `r.zsibok.hu/zphinx-zerver-docker/zib-builder:<zig-version>`
-
-Current versions:
-  - LLVM 11.0.0
-  - ZIG 0.7.1
-
-## Full rebuild process
-1. Essetials-builder
-2. Zig-builder
-3. zphinx-builder
-4. zphinx
 

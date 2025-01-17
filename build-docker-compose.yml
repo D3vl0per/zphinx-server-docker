@@ -1,0 +1,12 @@
+version: "3.7"
+services:   
+  zphinx:
+     build:
+       context: ./
+       dockerfile: Dockerfile
+       args:
+         ZPHINX_COMMIT: 2362a37
+         EQUIHASH_COMMIT: 325de23
+         ALPINE_VERSION: 3.21.2
+     image: zphinx:latest
+      

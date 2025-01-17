@@ -3,11 +3,16 @@ services:
   zphinx:
     cap_drop:
       - ALL
-    image: d3vm/zphinx-zerver-docker:zphinx-c080ede
+    image: zphinx:latest
+    #command: ["docker-init"]
+    restart: unless-stopped
     ports:
-      - 443:2355
+      - 4443:2355
     volumes:
-      - ${PWD}/sphinx.cfg:/sphinx.cfg:ro
-      - ${PWD}/ssl_key.pem:/zphinx-zerver/ssl_key.pem:ro
-      - ${PWD}/ssl_cert.pem:/zphinx-zerver/ssl_cert.pem:ro
-      - ${PWD}/data:/srv/data:rw
+      #- ./keys/:/tmp/keys/:rw
+      - ./keys/:/etc/ssl/sphinx/:ro
+      - ./sphinx.cfg:/etc/sphinx/config:ro
+      - data:/var/lib/sphinx:rw
+
+volumes:
+  data:

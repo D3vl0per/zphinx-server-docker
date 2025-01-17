@@ -10,7 +10,9 @@ FROM essetials-builder:latest as essetials-builder
 ## Ziglang build from source ##
 ###############################
 
-FROM alpine:3.15.0 as zig-builder
+ARG ALPINE_VERSION
+
+FROM alpine:${ALPINE_VERSION} as zig-builder
 
 ARG ZIG_COMMIT
 ARG ARCH

@@ -1,0 +1,59 @@
+#############################
+### LLVM build from source ##
+#############################
+
+## From https://github.com/ziglang/docker-zig
+
+ARG ALPINE_VERSION
+
+FROM alpine:${ALPINE_VERSION} as essetials-builder
+
+ARG LLVM_VERSION
+ARG LLD_VERSION
+ARG CLANG_VERSION
+
+RUN mkdir -p /deps
+
+WORKDIR /deps
+RUN wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLVM_VERSION/llvm-project-$LLVM_VERSION.src.tar.xz \
+    && tar xf llvm-project-$LLVM_VERSION.src.tar.xz \
+    && mkdir -p /deps/llvm-project-$LLVM_VERSION.src/build \
+    && wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$LLD_VERSION/lld-$LLD_VERSION.src.tar.xz \
+    && tar xf lld-$LLD_VERSION.src.tar.xz \
+    && mkdir -p /deps/lld-$LLD_VERSION.src/build \
+    && wget https://github.com/llvm/llvm-project/releases/download/llvmorg-$CLANG_VERSION/clang-$CLANG_VERSION.src.tar.xz \
+    && tar xf clang-$CLANG_VERSION.src.tar.xz \
+    && mkdir -p /deps/clang-$CLANG_VERSION.src/build
+
+RUN apk update --no-cache \
+	&& apk add --no-cache git gcc g++ automake autoconf pkgconfig python3-dev cmake ninja libc-dev binutils zlib-static libstdc++ python3-dev llvm-libunwind-dev
+
+# llvm
+WORKDIR /deps/llvm-project-$LLVM_VERSION.src/build
+RUN cmake ../llvm -B .  \
+    -DCMAKE_INSTALL_PREFIX=/deps/local \
+    -DCMAKE_PREFIX_PATH=/deps/local \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_ENABLE_LIBXML2=OFF \
+    -DLLVM_ENABLE_TERMINFO=OFF \
+    -DLLVM_ENABLE_PROJECTS="clang;lld" \
+    -G Ninja
+RUN ninja install
+
+# lld
+WORKDIR /deps/lld-$LLD_VERSION.src/build
+RUN cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/deps/local \
+    -DCMAKE_PREFIX_PATH=/deps/local \
+    -DCMAKE_BUILD_TYPE=Release \
+    -G Ninja
+RUN ninja install
+
+# clang
+WORKDIR /deps/clang-$CLANG_VERSION.src/build
+RUN cmake .. \
+    -DCMAKE_INSTALL_PREFIX=/deps/local \
+    -DCMAKE_PREFIX_PATH=/deps/local \
+    -DCMAKE_BUILD_TYPE=Release \
+    -G Ninja
+RUN ninja install
